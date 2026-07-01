@@ -9,7 +9,7 @@ if [ "$SENDER" = "mouse.entered" ]; then
   exit 0
 fi
 
-if [ "$SENDER" = "mouse.exited.global" ]; then
+if [ "$SENDER" = "mouse.exited" ]; then
   sketchybar --set $NAME popup.drawing=off
   exit 0
 fi

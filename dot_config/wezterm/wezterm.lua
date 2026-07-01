@@ -13,54 +13,65 @@ config.font = wezterm.font("JetBrainsMono Nerd Font")
 config.font_size = 14.0
 config.harfbuzz_features = { 'calt=1', 'clig=1', 'liga=1' }
 
--- Custom Color Schemes (Everforest Hard Contrast)
-config.color_schemes = {
-  ['Everforest Dark Hard'] = {
-    foreground = "#d3c6aa",
-    background = "#1e2326",
-    cursor_fg = "#1e2326",
-    cursor_bg = "#e69875",
+-- Tell WezTerm to reload when current.txt changes
+wezterm.add_to_config_reload_watch_list(
+  os.getenv("HOME") .. "/.config/theme-repository/current.txt"
+)
+
+-- Load colors from active theme inside theme-repository
+local function load_theme_colors()
+  local home = os.getenv("HOME")
+  local current_file = io.open(home .. "/.config/theme-repository/current.txt", "r")
+  if not current_file then return nil end
+  local theme_name = current_file:read("*l")
+  current_file:close()
+  if not theme_name then return nil end
+  theme_name = theme_name:gsub("%s+", "") -- trim spaces
+  
+  local colors = {}
+  local file = io.open(home .. "/.config/theme-repository/" .. theme_name .. ".txt", "r")
+  if not file then return nil end
+  for line in file:lines() do
+    if not line:match("^%s*#") and not line:match("^%s*$") then
+      local key, val = line:match("^%s*([%w_]+)%s*=%s*(#[%w]+)")
+      if key and val then
+        colors[key] = val
+      end
+    end
+  end
+  file:close()
+  return colors
+end
+
+local colors = load_theme_colors()
+
+if colors then
+  config.colors = {
+    foreground = colors.foreground,
+    background = colors.background,
+    cursor_fg = colors.background,
+    cursor_bg = colors.orange,
     ansi = {
-      "#7a8478", "#e67e80", "#a7c080", "#dbbc7f",
-      "#7fbbb3", "#d699b6", "#83c092", "#f2efdf"
+      colors.black,
+      colors.red,
+      colors.green,
+      colors.yellow,
+      colors.blue,
+      colors.magenta,
+      colors.cyan,
+      colors.white
     },
     brights = {
-      "#829181", "#e67e80", "#a7c080", "#dbbc7f",
-      "#7fbbb3", "#d699b6", "#83c092", "#f2efdf"
-    }
-  },
-  ['Everforest Light Hard'] = {
-    foreground = "#5c6a72",
-    background = "#f2efdf",
-    cursor_fg = "#f2efdf",
-    cursor_bg = "#f57d26",
-    ansi = {
-      "#a6b0a0", "#f85552", "#8da101", "#dfa000",
-      "#3a94c5", "#df69ba", "#35a77c", "#5c6a72"
-    },
-    brights = {
-      "#829181", "#f85552", "#8da101", "#dfa000",
-      "#3a94c5", "#df69ba", "#35a77c", "#5c6a72"
+      colors.grey or colors.black,
+      colors.red,
+      colors.green,
+      colors.yellow,
+      colors.blue,
+      colors.magenta,
+      colors.cyan,
+      colors.white
     }
   }
-}
-
--- Color scheme configuration with auto-switching
-local function get_appearance()
-  if wezterm.gui then
-    return wezterm.gui.get_appearance()
-  end
-  return 'Dark'
 end
-
-local function scheme_for_appearance(appearance)
-  if appearance:find 'Dark' then
-    return 'Everforest Dark Hard'
-  else
-    return 'Everforest Light Hard'
-  end
-end
-
-config.color_scheme = scheme_for_appearance(get_appearance())
 
 return config
