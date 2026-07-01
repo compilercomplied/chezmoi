@@ -254,17 +254,8 @@ sketchybar --add item wifi right \
                          padding_right=12 \
                          label.drawing=off \
                          click_script="open 'x-apple.systempreferences:com.apple.wifi'" \
-                         popup.align=right \
-                         popup.background.color=$BUBBLE_COLOR \
-                         popup.background.corner_radius=10 \
-                         popup.background.border_width=2 \
-                         popup.background.border_color=$BUBBLE_BORDER \
-           --subscribe wifi wifi_change system_woke mouse.entered mouse.exited
+           --subscribe wifi wifi_change system_woke
 
-sketchybar --add item wifi_ssid popup.wifi \
-           --set wifi_ssid label.font="$LABEL_FONT" \
-                           padding_left=15 \
-                           padding_right=15
 
 # bluetooth is the left element of the connectivity group
 sketchybar --add item bluetooth right \

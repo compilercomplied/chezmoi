@@ -20,13 +20,5 @@ else
   LABEL="$SSID"
   COLOR=$COLOR_WIFI
 fi
+sketchybar --set $NAME icon="$ICON" icon.color=$COLOR
 
-if [ "$SENDER" = "mouse.entered" ]; then
-  sketchybar --set wifi_ssid label="$LABEL" \
-             --set $NAME popup.drawing=on
-elif [ "$SENDER" = "mouse.exited" ]; then
-  sketchybar --set $NAME popup.drawing=off
-else
-  # Default state (e.g. on update_freq)
-  sketchybar --set $NAME icon="$ICON" icon.color=$COLOR
-fi
