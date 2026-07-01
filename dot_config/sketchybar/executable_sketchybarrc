@@ -1,6 +1,11 @@
 #!/bin/bash
 
 # Source Everforest colors and shared variables
+if [ "$(osascript -e 'tell application "System Events" to tell appearance preferences to get dark mode')" = "true" ]; then
+  echo "Dark" > /tmp/sketchybar_theme
+else
+  echo "Light" > /tmp/sketchybar_theme
+fi
 source "$CONFIG_DIR/colors.sh"
 source "$CONFIG_DIR/plugins/vars.sh"
 
@@ -277,3 +282,10 @@ add_bubble connectivity_bubble wifi bluetooth
 
 # Force an update
 sketchybar --update
+
+# --- System Theme Change Event Listener (No Polling) ---
+sketchybar --add event theme_change AppleInterfaceThemeChangedNotification \
+           --add item theme_listener left \
+           --subscribe theme_listener theme_change \
+           --set theme_listener drawing=off script="$CONFIG_DIR/plugins/theme_change.sh"
+
