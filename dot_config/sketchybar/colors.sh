@@ -25,7 +25,7 @@ if [ "$(osascript -e 'tell application "System Events" to tell appearance prefer
   export COLOR_VOLUME=0xffe69875     # Orange
   export COLOR_DATE_TIME=0xffd699b6  # Magenta/Purple
 else
-  # --- EVERFOREST LIGHT (MEDIUM CONTRAST) ---
+  # --- EVERFOREST LIGHT (HARD CONTRAST) ---
   export WHITE=0xff5c6a72            # Dark grey/charcoal
   export RED=0xfff85552
   export GREEN=0xff8da101
@@ -36,8 +36,8 @@ else
   export TRANSPARENT=0x00000000
 
   # Sketchybar Specifics
-  export BUBBLE_COLOR=0xffefebd4    # Medium background (EFEBD4)
-  export BUBBLE_BORDER=0xffe5dfc5   # Soft contrast border (E5DFC5)
+  export BUBBLE_COLOR=0xffe5dfc5    # Hard contrast medium background (E5DFC5)
+  export BUBBLE_BORDER=0xffdbd6b6   # Hard contrast border (DBD6B6)
   export ITEM_COLOR=0xff5c6a72      # Dark grey foreground
 
   # Component Accent Colors
