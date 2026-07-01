@@ -1,0 +1,42 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = true
+
+[character]
+success_symbol = "🐌"
+error_symbol = '[✗](bold red)'
+
+[package]
+disabled = true
+
+[azure]
+disabled = true
+style = 'blue'
+
+# [kubernetes]
+# disabled = false
+# symbol='☸️ '
+# [kubernetes.context_aliases]
+# 'very-long-dev-k8s-namespace'='dev'
+
+# This will hide 'via Orbstack' in macOS.
+[docker_context]
+disabled = true
+
+[container]
+disabled = true
+
+[mise]
+disabled = false
+healthy_symbol = ""
+unhealthy_symbol = "❌"
+
+[kotlin]
+disabled = true
+
+[java]
+disabled = true
+
+[gradle]
+disabled = true
