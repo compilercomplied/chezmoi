@@ -1,0 +1,279 @@
+#!/bin/bash
+
+# Source Everforest colors and shared variables
+source "$CONFIG_DIR/colors.sh"
+source "$CONFIG_DIR/plugins/vars.sh"
+
+# Clear the current configuration
+sketchybar --update
+
+# General Bar Appearance
+sketchybar --bar \
+	height=32 \
+	position=top \
+	padding_left=12 \
+	padding_right=12 \
+	margin=8 \
+	y_offset=8 \
+	corner_radius=12 \
+	color=$BAR_COLOR \
+	blur_radius=0
+
+# Default Item Properties
+sketchybar --default \
+	icon.font="$ICON_FONT" \
+	label.font="$LABEL_FONT" \
+	icon.color=$ITEM_COLOR \
+	label.color=$ITEM_COLOR \
+	padding_left=10 \
+	padding_right=10 \
+	icon.padding_right=6 \
+	background.drawing=off
+
+# Helper function to add a bubble bracket with consistent styling
+add_bubble() {
+  local name="$1"
+  shift
+  sketchybar --add bracket "$name" "$@" \
+             --set "$name" background.color=$BUBBLE_COLOR \
+                           background.drawing=on \
+                           background.corner_radius=10 \
+                           background.height=26 \
+                           background.border_width=2 \
+                           background.border_color=$BUBBLE_BORDER
+}
+
+# ==============================================================================
+# --- LEFT GROUP ---
+# ==============================================================================
+
+# 1. Workspaces
+sketchybar --add event aerospace_workspace_change
+WORKSPACES=("1:󰖟" "2:" "3:" "4:󰭹" "5:󰝚" "6:" "7:" "8:" "9:")
+
+# Add invisible padding spacers at the bubble edges so that
+# all workspaces have identical, symmetrical padding for active highlights.
+sketchybar --add item space.padding_left left \
+           --set space.padding_left width=8 \
+                                    label.drawing=off \
+                                    icon.drawing=off \
+                                    background.drawing=off \
+                                    padding_left=0 \
+                                    padding_right=0
+
+SPACE_NAMES=("space.padding_left")
+for workspace in "${WORKSPACES[@]}"; do
+  sid="${workspace%%:*}"
+  icon="${workspace#*:}"
+  SPACE_NAMES+=("space.$sid")
+  
+  sketchybar --add item space.$sid left \
+             --subscribe space.$sid aerospace_workspace_change \
+             --set space.$sid \
+                  icon.width=0 \
+                  icon.padding_right=0 \
+                  label="$icon" \
+                  padding_left=2 \
+                  padding_right=2 \
+                  label.padding_left=6 \
+                  label.padding_right=6 \
+                  background.drawing=on \
+                  background.color=$TRANSPARENT \
+                  background.height=24 \
+                  background.corner_radius=8 \
+                  click_script="aerospace workspace $sid" \
+                  script="$CONFIG_DIR/plugins/aerospace.sh $sid"
+done
+
+sketchybar --add item space.padding_right left \
+           --set space.padding_right width=8 \
+                                     label.drawing=off \
+                                     icon.drawing=off \
+                                     background.drawing=off \
+                                     padding_left=0 \
+                                     padding_right=0
+
+SPACE_NAMES+=("space.padding_right")
+
+add_bubble spaces_bubble "${SPACE_NAMES[@]}"
+
+# 2. Media Player (Pill next to workspaces)
+sketchybar --remove '/media.*/'
+
+sketchybar --add item spacer_spaces_media left \
+           --set spacer_spaces_media width=15 padding_left=0 padding_right=0
+
+sketchybar --add item media left \
+           --set media script="$CONFIG_DIR/plugins/media.sh" \
+                       update_freq=2 \
+                       icon.font="$ICON_FONT" \
+                       label.font="$LABEL_FONT" \
+                       icon.color=$COLOR_MEDIA \
+                       label.color=$ITEM_COLOR \
+                       padding_left=12 \
+                       padding_right=12 \
+                       click_script="if pgrep -x Spotify >/dev/null; then osascript -e 'tell application \"Spotify\" to playpause'; elif pgrep -x Music >/dev/null; then osascript -e 'tell application \"Music\" to playpause'; fi" \
+                       popup.align=left \
+                       popup.background.color=$BUBBLE_COLOR \
+                       popup.background.corner_radius=10 \
+                       popup.background.border_width=2 \
+                       popup.background.border_color=$BUBBLE_BORDER \
+                       popup.background.padding_top=0 \
+                       popup.background.padding_bottom=0 \
+           --subscribe media media_change mouse.entered mouse.exited.global mouse.clicked
+
+add_bubble media_bubble media
+
+# Media Player Popup Details
+sketchybar --add item media_cover popup.media \
+           --set media_cover background.image.scale=0.11 \
+                             background.height=70 \
+                             width=70 \
+                             padding_left=55 \
+                             padding_right=55 \
+                             align=center \
+                             y_offset="-10"
+
+sketchybar --add item media_title popup.media \
+           --set media_title label.font="JetBrainsMono Nerd Font:Bold:13.0" \
+                             width=180 \
+                             label.align=center \
+                             y_offset="-10"
+
+sketchybar --add item media_artist popup.media \
+           --set media_artist label.font="JetBrainsMono Nerd Font:Medium:11.0" \
+                             width=180 \
+                             icon.align=right \
+                             label.align=left \
+                             icon.padding_right=8 \
+                             icon="󰎆" \
+                             icon.color=$COLOR_MEDIA \
+                             y_offset="-10"
+
+sketchybar --add item media_album popup.media \
+           --set media_album label.font="JetBrainsMono Nerd Font:Italic:10.0" \
+                             width=180 \
+                             icon.align=right \
+                             label.align=left \
+                             icon.padding_right=8 \
+                             icon="󰀥" \
+                             icon.color=$GREY \
+                             y_offset="-10"
+
+sketchybar --add item media_bottom_pad popup.media \
+           --set media_bottom_pad drawing=on
+
+
+# ==============================================================================
+# --- CENTER GROUP: SPACER ONLY (For Notch) ---
+# ==============================================================================
+sketchybar --add item notch_spacer center \
+           --set notch_spacer width=150 \
+                               label.drawing=off \
+                               icon.drawing=off \
+                               background.drawing=off \
+                               padding_left=0 \
+                               padding_right=0
+
+
+# ==============================================================================
+# --- RIGHT GROUP ---
+# ==============================================================================
+
+# 1. Date & Clock
+sketchybar --add item clock right \
+           --set clock update_freq=10 \
+                          icon="󰥔" \
+                          icon.color=$COLOR_DATE_TIME \
+                          padding_left=12 \
+                          padding_right=12 \
+                          script="sketchybar --set \$NAME label=\"\$(date '+%H:%M')\""
+
+add_bubble clock_bubble clock
+
+sketchybar --add item spacer_date_clock right \
+           --set spacer_date_clock width=15 padding_left=0 padding_right=0
+
+sketchybar --add item date right \
+           --set date update_freq=60 \
+                          icon="󰃭" \
+                          icon.color=$COLOR_DATE_TIME \
+                          script="$CONFIG_DIR/plugins/date.sh" \
+                          padding_left=12 \
+                          padding_right=12 \
+                          popup.align=right \
+                          popup.background.color=$BUBBLE_COLOR \
+                          popup.background.corner_radius=10 \
+                          popup.background.border_width=2 \
+                          popup.background.border_color=$BUBBLE_BORDER \
+            --subscribe date mouse.entered mouse.exited mouse.clicked
+
+add_bubble date_bubble date
+
+# 2. Battery
+sketchybar --add item spacer_batt_date right \
+           --set spacer_batt_date width=15 padding_left=0 padding_right=0
+
+sketchybar --add item battery right \
+           --set battery update_freq=60 \
+                         script="$CONFIG_DIR/plugins/battery.sh" \
+                         icon.font="$LABEL_FONT" \
+                         padding_left=12 \
+                         padding_right=12 \
+           --subscribe battery power_source_change system_woke
+
+add_bubble battery_bubble battery
+
+# 3. Volume
+sketchybar --add item spacer_vol_batt right \
+           --set spacer_vol_batt width=15 padding_left=0 padding_right=0
+
+sketchybar --add item volume right \
+           --set volume update_freq=5 \
+                         script="$CONFIG_DIR/plugins/volume.sh" \
+                         padding_left=12 \
+                         padding_right=12 \
+           --subscribe volume volume_change mouse.clicked
+
+add_bubble volume_bubble volume
+
+# 4. Connectivity (Wifi & Bluetooth in one bubble)
+sketchybar --add item spacer_connectivity_vol right \
+           --set spacer_connectivity_vol width=15 padding_left=0 padding_right=0
+
+# wifi is the right element of the connectivity group
+sketchybar --add item wifi right \
+           --set wifi update_freq=60 \
+                         script="$CONFIG_DIR/plugins/wifi.sh" \
+                         padding_left=6 \
+                         padding_right=12 \
+                         label.drawing=off \
+                         click_script="open 'x-apple.systempreferences:com.apple.wifi'" \
+                         popup.align=right \
+                         popup.background.color=$BUBBLE_COLOR \
+                         popup.background.corner_radius=10 \
+                         popup.background.border_width=2 \
+                         popup.background.border_color=$BUBBLE_BORDER \
+           --subscribe wifi wifi_change system_woke mouse.entered mouse.exited
+
+sketchybar --add item wifi_ssid popup.wifi \
+           --set wifi_ssid label.font="$LABEL_FONT" \
+                           padding_left=15 \
+                           padding_right=15
+
+# bluetooth is the left element of the connectivity group
+sketchybar --add item bluetooth right \
+           --set bluetooth update_freq=0 \
+                           script="$CONFIG_DIR/plugins/bluetooth.sh" \
+                           icon.font="$ICON_FONT" \
+                           label.font="$LABEL_FONT" \
+                           label.drawing=off \
+                           padding_left=12 \
+                           padding_right=6 \
+                           click_script="open 'x-apple.systempreferences:com.apple.BluetoothSettings'" \
+           --subscribe bluetooth system_woke mouse.entered
+
+add_bubble connectivity_bubble wifi bluetooth
+
+# Force an update
+sketchybar --update
