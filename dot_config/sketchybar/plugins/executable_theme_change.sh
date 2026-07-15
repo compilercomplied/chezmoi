@@ -10,12 +10,12 @@ else
 fi
 
 # Get last recorded theme
-LAST_THEME=$(cat /Users/gdario/.config/theme-repository/current.txt 2>/dev/null | tr -d '[:space:]')
+LAST_THEME=$(cat "$HOME/.config/theme-repository/current.txt" 2>/dev/null | tr -d '[:space:]')
 
 # Only reload if the theme has actually transitioned
 if [ "$CURRENT_THEME" != "$LAST_THEME" ]; then
   # 1. Update current.txt
-  echo "$CURRENT_THEME" > /Users/gdario/.config/theme-repository/current.txt
+  echo "$CURRENT_THEME" > "$HOME/.config/theme-repository/current.txt"
   
   # 2. Reload sketchybar to load the new colors
   sketchybar --reload
